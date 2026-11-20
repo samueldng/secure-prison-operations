@@ -35,12 +35,20 @@ function AuthPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: toLoginEmail(login), password });
+    const email = toLoginEmail(login);
+    console.log("[Auth] Tentando login com e-mail resolvido:", email);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
-      toast.error("Usuário ou senha inválidos.");
+      console.error("[Auth] Erro retornado pelo Supabase:", error);
+      toast.error(
+        error.message === "Invalid login credentials"
+          ? "Credenciais inválidas: e-mail ou senha incorretos no Supabase."
+          : error.message || "Erro ao efetuar login."
+      );
       return;
     }
+    console.log("[Auth] Sucesso! Autenticado como:", data.user?.email);
     qc.clear();
     navigate({ to: "/dashboard", replace: true });
   }
