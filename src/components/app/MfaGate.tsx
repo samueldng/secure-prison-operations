@@ -9,7 +9,14 @@ import { Label } from "@/components/ui/label";
 
 type Enroll = { factorId: string; qr: string; secret: string };
 
+const MFA_ENABLED = import.meta.env.VITE_REQUIRE_MFA === "true";
+
 export function MfaGate({ onSignOut }: { onSignOut: () => void }) {
+  if (!MFA_ENABLED) return null;
+  return <MfaGateGuard onSignOut={onSignOut} />;
+}
+
+function MfaGateGuard({ onSignOut }: { onSignOut: () => void }) {
   const qc = useQueryClient();
   const [factorId, setFactorId] = useState<string | null>(null);
   const [enroll, setEnroll] = useState<Enroll | null>(null);

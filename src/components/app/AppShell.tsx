@@ -46,6 +46,8 @@ function useMe() {
   return { ...q, role: q.data?.role ?? null };
 }
 
+const MFA_ENABLED = import.meta.env.VITE_REQUIRE_MFA === "true";
+
 export function AppShell() {
   const { data, isLoading, role } = useMe();
   const qc = useQueryClient();
@@ -79,7 +81,7 @@ export function AppShell() {
     );
   }
 
-  if (MFA_ROLES.includes(role) && data.aal !== "aal2") {
+  if (MFA_ENABLED && MFA_ROLES.includes(role) && data.aal !== "aal2") {
     return <MfaGate onSignOut={() => signOut()} />;
   }
 
