@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { INTERNAL_DOMAIN } from "@/lib/login";
 
 const schema = z.object({
   login: z.string().trim().min(3).max(120),
@@ -20,7 +21,7 @@ export const createAccount = createServerFn({ method: "POST" })
     if (rErr || !ok) throw new Error("Apenas o Diretor (com 2FA ativo) pode criar contas.");
 
     const v = data.login.toLowerCase();
-    const email = v.includes("@") ? v : `${v.replace(/[^a-z0-9._-]/g, "")}@upsti.local`;
+    const email = v.includes("@") ? v : `${v.replace(/[^a-z0-9._-]/g, "")}@${INTERNAL_DOMAIN}`;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({

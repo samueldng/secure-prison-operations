@@ -19,20 +19,34 @@ export function MfaGate({ onSignOut }: { onSignOut: () => void }) {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.mfa.listFactors();
-      const verified = data?.totp?.find((f) => f.status === "verified");
-      if (verified) {
-        setFactorId(verified.id);
-      } else {
-        // remove fatores pendentes antigos antes de cadastrar novo
-        for (const f of data?.all ?? []) {
-          if (f.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: f.id });
+      try {
+        const { data, error: listError } = await supabase.auth.mfa.listFactors();
+        if (listError) {
+          console.warn("MFA listFactors warning:", listError);
+          setLoading(false);
+          return;
         }
-        const { data: e, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `UPSTI-${Date.now()}` });
-        if (error) toast.error(error.message);
-        else setEnroll({ factorId: e.id, qr: e.totp.qr_code, secret: e.totp.secret });
+        const verified = data?.totp?.find((f) => f.status === "verified");
+        if (verified) {
+          setFactorId(verified.id);
+        } else {
+          // remove fatores pendentes antigos antes de cadastrar novo
+          for (const f of data?.all ?? []) {
+            if (f.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: f.id });
+          }
+          const { data: e, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `UPSTI-${Date.now()}` });
+          if (error) {
+            toast.error(error.message);
+          } else if (e?.totp) {
+            setEnroll({ factorId: e.id, qr: e.totp.qr_code, secret: e.totp.secret });
+          }
+        }
+      } catch (err: any) {
+        console.error("MfaGate initialization error:", err);
+        toast.error("Erro ao inicializar verificação 2FA.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 

@@ -29,10 +29,11 @@ interface StatCardProps {
   hint: string;
   badge?: string;
   badgeVariant?: "default" | "destructive" | "outline";
+  slug?: string;
   to?: string;
 }
 
-function StatCard({ icon: Icon, label, value, hint, badge, badgeVariant = "outline", to }: StatCardProps) {
+function StatCard({ icon: Icon, label, value, hint, badge, badgeVariant = "outline", slug, to }: StatCardProps) {
   const content = (
     <div className="rounded-lg border bg-card p-4.5 shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between">
       <div>
@@ -47,11 +48,14 @@ function StatCard({ icon: Icon, label, value, hint, badge, badgeVariant = "outli
       </div>
       <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
         <span>{hint}</span>
-        {to && <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/60" />}
+        {(slug || to) && <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/60" />}
       </div>
     </div>
   );
 
+  if (slug) {
+    return <Link to="/modulo/$slug" params={{ slug }} className="block">{content}</Link>;
+  }
   return to ? <Link to={to as any} className="block">{content}</Link> : content;
 }
 
@@ -245,7 +249,7 @@ function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2 mt-2 sm:mt-0">
-          <Link to={"/modulo/escalas" as any}>
+          <Link to="/modulo/$slug" params={{ slug: "escalas" }}>
             <Button variant="outline" size="sm" className="text-xs">
               <CalendarDays className="mr-1.5 h-3.5 w-3.5" /> Ver Escala de Hoje
             </Button>
@@ -262,7 +266,7 @@ function Dashboard() {
             value={escaladosHoje}
             hint="Efetivo escalado na data de hoje"
             badge={`${totalServidores} ativos no total`}
-            to="/modulo/escalas"
+            slug="escalas"
           />
         )}
 
@@ -274,7 +278,7 @@ function Dashboard() {
             hint={pendencias.total > 0 ? "Requer decisão da Direção" : "Nenhuma pendência"}
             badge={pendencias.total > 0 ? "Ação Requerida" : "Em dia"}
             badgeVariant={pendencias.total > 0 ? "destructive" : "default"}
-            to="/modulo/folgas"
+            slug="folgas"
           />
         )}
 
@@ -286,7 +290,7 @@ function Dashboard() {
             hint={`Taxa de ocupação: ${ocupacaoCarceraria.taxa}% (Blocos A e B)`}
             badge={ocupacaoCarceraria.taxa > 100 ? "Superlotação" : "Capacidade"}
             badgeVariant={ocupacaoCarceraria.taxa > 100 ? "destructive" : "outline"}
-            to="/modulo/blocos"
+            slug="blocos"
           />
         )}
 
@@ -302,7 +306,7 @@ function Dashboard() {
             }
             badge={dadosBelicos.atrasados > 0 ? "Atrasos" : "Normal"}
             badgeVariant={dadosBelicos.atrasados > 0 ? "destructive" : "outline"}
-            to="/modulo/intendencia"
+            slug="intendencia"
           />
         )}
 
@@ -312,7 +316,7 @@ function Dashboard() {
             label="Meu Próximo Plantão"
             value={servidorMe?.proximoPlantao?.data ? new Date(servidorMe.proximoPlantao.data + "T00:00:00").toLocaleDateString("pt-BR") : "Aguardando escala"}
             hint={servidorMe?.proximoPlantao?.turno ? `Turno: ${servidorMe.proximoPlantao.turno}` : "Consulte a chefia"}
-            to="/modulo/escalas"
+            slug="escalas"
           />
         )}
 
@@ -323,7 +327,7 @@ function Dashboard() {
             value={`${servidorMe?.saldoFolgas || 0}h`}
             hint={`${servidorMe?.folgasProntas || 0} folga(s) de 12h disponíveis`}
             badge="Banco de Folgas"
-            to="/modulo/folgas"
+            slug="folgas"
           />
         )}
       </div>
@@ -337,7 +341,7 @@ function Dashboard() {
               <h2 className="text-sm font-bold flex items-center gap-2">
                 <Truck className="h-4 w-4 text-primary" /> Operações Judiciais e Escoltas do Dia
               </h2>
-              <Link to={"/modulo/escoltas" as any} className="text-xs text-primary hover:underline">
+              <Link to="/modulo/$slug" params={{ slug: "escoltas" }} className="text-xs text-primary hover:underline">
                 Ver Agenda Completa
               </Link>
             </div>
@@ -354,7 +358,7 @@ function Dashboard() {
                       Horário: {new Date(op.data_programada).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
-                  <Link to={"/modulo/escoltas" as any}>
+                  <Link to="/modulo/$slug" params={{ slug: "escoltas" }}>
                     <Button variant="outline" size="sm" className="h-7 text-xs">Detalhes</Button>
                   </Link>
                 </div>
@@ -377,7 +381,8 @@ function Dashboard() {
               </h2>
               <div className="space-y-2 text-xs">
                 <Link
-                  to={"/modulo/folgas" as any}
+                  to="/modulo/$slug"
+                  params={{ slug: "folgas" }}
                   className="flex items-center justify-between p-2.5 rounded-md border bg-muted/20 hover:bg-muted/40 transition-colors"
                 >
                   <span>Solicitações de Folga / Gozo</span>
@@ -387,7 +392,8 @@ function Dashboard() {
                 </Link>
 
                 <Link
-                  to={"/modulo/permutas" as any}
+                  to="/modulo/$slug"
+                  params={{ slug: "permutas" }}
                   className="flex items-center justify-between p-2.5 rounded-md border bg-muted/20 hover:bg-muted/40 transition-colors"
                 >
                   <span>Permutas Aceitas (Aguardando Direção)</span>
@@ -397,7 +403,8 @@ function Dashboard() {
                 </Link>
 
                 <Link
-                  to={"/modulo/missoes" as any}
+                  to="/modulo/$slug"
+                  params={{ slug: "missoes" }}
                   className="flex items-center justify-between p-2.5 rounded-md border bg-muted/20 hover:bg-muted/40 transition-colors"
                 >
                   <span>Missões Externas Solicitadas</span>
@@ -407,7 +414,8 @@ function Dashboard() {
                 </Link>
 
                 <Link
-                  to={"/modulo/escoltas" as any}
+                  to="/modulo/$slug"
+                  params={{ slug: "escoltas" }}
                   className="flex items-center justify-between p-2.5 rounded-md border bg-muted/20 hover:bg-muted/40 transition-colors"
                 >
                   <span>Operações Judiciais Programadas</span>
