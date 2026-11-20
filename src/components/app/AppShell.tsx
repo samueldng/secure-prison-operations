@@ -81,9 +81,10 @@ export function AppShell() {
     );
   }
 
-  if (MFA_ENABLED && MFA_ROLES.includes(role) && data.aal !== "aal2") {
-    return <MfaGate onSignOut={() => signOut()} />;
-  }
+  // MFA / 2FA desativado para acesso direto
+  // if (MFA_ENABLED && MFA_ROLES.includes(role) && data.aal !== "aal2") {
+  //   return <MfaGate onSignOut={() => signOut()} />;
+  // }
 
   const mods = modulesFor(role).slice(0, 3);
 

@@ -136,3 +136,15 @@
 @layer base {
   body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 }
+
+/* Ocultar badge flutuante do Netlify para não sobrepor o menu mobile */
+[class*="netlify-badge"],
+[id*="netlify-badge"],
+a[href*="netlify.com"][class*="badge"],
+iframe[title*="Netlify"],
+div:has(> a[href*="netlify.com"]),
+.netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

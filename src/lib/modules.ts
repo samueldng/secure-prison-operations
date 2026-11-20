@@ -12,8 +12,8 @@ export const ROLE_LABEL: Record<AppRole, string> = {
   servidor: "Servidor",
 };
 
-/** Perfis que exigem verificação em duas etapas (2FA). */
-export const MFA_ROLES: AppRole[] = ["diretor", "intendencia"];
+/** Perfis que exigem verificação em duas etapas (2FA). Desabilitado para permitir acesso direto. */
+export const MFA_ROLES: AppRole[] = [];
 
 export type ModuleDef = {
   slug: string;
